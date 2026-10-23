@@ -42,7 +42,8 @@ before you do it, and let them do the taps on the TV.
 7. **Tell them what the switch does** before they make it: the home screen and screensaver change, a short list of
    promo apps is turned off (never uninstalled), and *Original* brings it all back. On TCL, the remote's Netflix,
    YouTube and Prime buttons keep working through a small accessibility service that only reads those buttons
-   (*Free My TV* → *Remote Buttons* picks what each opens); *Original* turns it off.
+   (*Free My TV* → *Remote Buttons* picks what each opens); *Original* turns it off. The same service makes the
+   Settings button open Free My TV's quick panel (Wi-Fi, Bluetooth, picture, inputs) from any app.
 8. **They switch on the TV:** *Free My TV* → *Home Screen* → *Free My TV*. The app uses the TV's own ADB on
    127.0.0.1 with its own key, so the TV asks once more to allow debugging. Don't switch modes from the computer.
    If the TV's Wi-Fi was saved during its first setup, the switch stops before changing anything and asks them to
@@ -193,7 +194,8 @@ HDMI (Chromecast with Google TV, Google TV Streamer, onn 4K, NVIDIA Shield). Set
   What the person changes on the TV (`Prefs`: Home Settings, Shelf, Remote Buttons) wins over those first values.
 - The remote's app buttons (`RemoteKeys`, `RemoteKeyService`) use each brand's key codes: they run only on TCL,
   Vestel, KTC (NextStar) and Sony TVs and Formovie projectors, the service is on only in Free My TV mode, and *Original* takes it out of the enabled accessibility
-  services. The system waits for the service on every key, so it lives alone in the `:keys` process: what it reads is
+  services. With Google TV's home screen off, `KEYCODE_SETTINGS` opens `QuickPanel` (Google TV's own side panel is part
+  of its home screen, so the button did nothing); on any other TV that key goes on untouched. The system waits for the service on every key, so it lives alone in the `:keys` process: what it reads is
   in `remote-keys.txt` (`Prefs.keyApp`), never in SharedPreferences, and `onKeyEvent` does no heavy work.
   Vestel (F&U and other store brands; MediaTek, Android TV 14 tested) maps its Netflix button to `KEYCODE_STEM_1`, a
   global key (`dumpsys window policy` lists them) that the key filter sees first; its YouTube, Prime Video and Google

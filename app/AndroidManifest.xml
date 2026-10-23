@@ -30,6 +30,8 @@
         <package android:name="com.google.android.tv" />
         <package android:name="com.mediatek.wwtv.tvcenter" />
         <package android:name="com.sony.dtv.tvx" />
+        <!-- Google TV's home screen: is it off (the remote's Settings button then opens QuickPanel)? -->
+        <package android:name="com.google.android.apps.tv.launcherx" />
         <intent>
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
@@ -96,6 +98,20 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <!-- The remote's Settings button in Free My TV mode (RemoteKeys): Wi-Fi, Bluetooth, picture, inputs, over any
+             app. A task of its own, so closing it goes back to the app that was playing. -->
+        <activity
+            android:name=".QuickPanel"
+            android:process=":home"
+            android:exported="false"
+            android:launchMode="singleTask"
+            android:taskAffinity="io.freemytv.panel"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:screenOrientation="landscape"
+            android:configChanges="keyboard|keyboardHidden|navigation|orientation|screenSize|screenLayout|smallestScreenSize|uiMode|density|fontScale|locale|layoutDirection"
+            android:theme="@style/FreeMyTV.Panel" />
 
         <service
             android:name=".Screensaver"

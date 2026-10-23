@@ -21,6 +21,9 @@ import android.view.KeyEvent;
 final class RemoteKeys {
     private RemoteKeys() {}
 
+    /** Google TV's home screen: the side panel the Settings button opens is part of it. */
+    private static final String GOOGLE_TV_HOME = "com.google.android.apps.tv.launcherx";
+
     /** Some TCL remotes (BT_RC833) send TCL's own YouTube key instead of BUTTON_3: the same button. */
     private static final int KEY_YOUTUBE_TCL = 4065;
 
@@ -42,6 +45,7 @@ final class RemoteKeys {
 
     /** Opens the app for this key on its first press. True if the key is ours and in use (it is then consumed). */
     static boolean onKey(Context c, KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.KEYCODE_SETTINGS) return onSettingsKey(c, e);
         if (!supported()) return false;
         // BUTTON_3 is also a game controller's button: keys from a gamepad or a joystick are left alone.
         int source = e.getSource();
@@ -65,6 +69,31 @@ final class RemoteKeys {
             if (intent != null) c.startActivity(intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         }
         return true;
+    }
+
+    /**
+     * The Settings button opens Google TV's side panel (Wi-Fi, Bluetooth, picture, inputs), which belongs to Google TV's
+     * home screen: with that turned off (Free My TV mode), the button did nothing, so it opens our panel instead. Only
+     * then: on a TV where Google TV's home screen is on, or one without it, the key goes on as always.
+     */
+    private static boolean onSettingsKey(Context c, KeyEvent e) {
+        if (!googleHomeOff(c)) return false;
+        if (e.getAction() == KeyEvent.ACTION_DOWN && e.getRepeatCount() == 0) {
+            AppLog.w("settings key -> quick panel");
+            c.startActivity(new Intent(c, QuickPanel.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        }
+        return true;
+    }
+
+    /** One quick call, and only for the Settings key (the system waits for the key filter on every key). */
+    private static boolean googleHomeOff(Context c) {
+        try {
+            int state = c.getPackageManager().getApplicationEnabledSetting(GOOGLE_TV_HOME);
+            return state == PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER
+                    || state == PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
+        } catch (IllegalArgumentException e) {
+            return false;   // not on this TV (classic Android TV)
+        }
     }
 
     /** The app's TV launcher, or its plain one (kept here, not in HomeApps, so the key process stays small). */
